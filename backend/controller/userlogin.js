@@ -1,6 +1,7 @@
 const User = require('../model/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+
 exports.userLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -31,7 +32,10 @@ exports.userLogin = async (req, res) => {
     // remove password before sending user back
     const { password: _, ...userData } = user.toObject();
 
-    return res.status(200).json({ token, user: userData });
+    userData.token = token;
+
+    // Now we send back a single user object with the token included.
+    return res.status(200).json(userData);
 
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
