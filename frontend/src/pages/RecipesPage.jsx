@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { useLoaderData, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import RecipeItems from '../components/RecipeItems';
@@ -124,6 +125,9 @@ export default function RecipesPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
 
+    const [recipes, setRecipes] = useState([]);
+    const [allCategories, setAllCategories] = useState([]);
+
     const INITIAL_LOAD_COUNT = 6;
     const [visibleCount, setVisibleCount] = useState(INITIAL_LOAD_COUNT);
     const [searchQuery, setSearchQuery] = useState('');
@@ -133,28 +137,55 @@ export default function RecipesPage() {
     const isMyRecipesPage = location.pathname === '/myRecipe';
     const isFavRecipesPage = location.pathname === '/favrecipes';
     const isExplorePage = !isMyRecipesPage && !isFavRecipesPage;
-
-    let recipes = [];
-    let allCategories = [];
-
-    if (isExplorePage) {
-        recipes = loaderData?.recipes || [];
-        allCategories = loaderData?.categories || [];
-    } else if (isMyRecipesPage) {
-        // ▼▼▼ THIS IS THE ONLY CHANGE ▼▼▼
-        // First, get all recipes from the loader
-        const allLoadedRecipes = loaderData?.recipes || [];
-        // Then, filter them to show only the ones created by the logged-in user
-        const user = JSON.parse(localStorage.getItem("user"));
-        if (user && user._id) {
-            recipes = allLoadedRecipes.filter(item => String(item.createdBy?._id) === String(user._id));
-        } else {
-            recipes = []; // If no user, show no recipes
+    
+    useEffect(() => {
+        let recipesToShow = [];
+        if (isExplorePage) {
+            recipesToShow = loaderData?.recipes || [];
+            setAllCategories(loaderData?.categories || []);
+        } else if (isMyRecipesPage) {
+            const allLoadedRecipes = loaderData?.recipes || [];
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (user && user._id) {
+                recipesToShow = allLoadedRecipes.filter(item => String(item.createdBy?._id) === String(user._id));
+            }
+        } else if (isFavRecipesPage) {
+            recipesToShow = favorites;
         }
-        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-    } else if (isFavRecipesPage) {
-        recipes = favorites;
-    }
+        setRecipes(recipesToShow);
+    }, [loaderData, location.pathname, favorites]); 
+    
+    const handleDelete = async (recipeId) => {
+        if (!window.confirm("Are you sure you want to delete this recipe?")) {
+            return;
+        }
+        try {
+            const user = JSON.parse(localStorage.getItem("user"));
+            const token = user?.token;
+
+            if (!token) {
+                console.error("Authentication token not found.");
+                return;
+            }
+            
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/recipes/${recipeId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete the recipe.');
+            }
+            
+            setRecipes(currentRecipes => currentRecipes.filter(recipe => recipe._id !== recipeId));
+
+        } catch (error) {
+            console.error("Error deleting recipe:", error);
+            alert("Could not delete the recipe. Please try again.");
+        }
+    };
 
     const selectedCategory = searchParams.get('category') || 'All';
     
@@ -237,6 +268,7 @@ export default function RecipesPage() {
                                             item={recipe}
                                             isFavorite={isFavorite(recipe._id)}
                                             onFavToggle={toggleFavorite}
+                                            onDelete={handleDelete}
                                         />
                                     </motion.div>
                                 ))}
