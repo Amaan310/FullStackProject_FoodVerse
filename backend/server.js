@@ -6,42 +6,27 @@ const dbConnect = require('./config/dbcon');
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// 🔗 Connect MongoDB
+// Connect to MongoDB
 dbConnect();
 
-// ✅ CORS Configuration
+// Middleware
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://foodverse07.netlify.app',
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true,
+  origin: ['http://localhost:5173', 'https://foodverse07.netlify.app'],
+  credentials: true
 }));
-
-// ✅ Middleware
 app.use(express.json());
 app.use(express.static('public'));
 
-// ✅ Import Routes
-const recipeRoutes = require('./routes/recipeRoutes');
-const userRoutes = require('./routes/userRoutes');
+// Routes
+const apiRoutes = require('./routes/recipe');
+app.use('/api', apiRoutes);
 
-// ✅ Mount Routes
-app.use('/api/recipes', recipeRoutes);
-app.use('/api/users', userRoutes);
-
-// ✅ Root Route
+// Default route
 app.get('/', (req, res) => {
-  res.send('<h1>🍽️ FoodVerse Backend is Running Successfully!</h1>');
+  res.send('✅ FoodVerse Backend Running Successfully!');
 });
 
-// ✅ Handle Invalid Routes
-app.use((req, res) => {
-  res.status(404).json({ message: `Route ${req.originalUrl} not found` });
-});
-
-// ✅ Start Server
+// Start server
 app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
