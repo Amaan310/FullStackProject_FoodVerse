@@ -160,30 +160,37 @@ export default function RecipesPage() {
             return;
         }
         try {
-            const user = JSON.parse(localStorage.getItem("user"));
-            const token = user?.token;
+            // Get token directly from localStorage (it's stored separately)
+            const token = localStorage.getItem("token");
 
             if (!token) {
-                console.error("Authentication token not found.");
+                alert("Please log in to delete recipes.");
+                navigate('/');
                 return;
             }
             
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/recipes/${recipeId}`, {
+            // Make DELETE request with proper authorization
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/deleterecipe/${recipeId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
             });
 
             if (!response.ok) {
-                throw new Error('Failed to delete the recipe.');
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to delete the recipe.');
             }
             
+            // Remove the recipe from the local state
             setRecipes(currentRecipes => currentRecipes.filter(recipe => recipe._id !== recipeId));
+            
+            alert("Recipe deleted successfully!");
 
         } catch (error) {
             console.error("Error deleting recipe:", error);
-            alert("Could not delete the recipe. Please try again.");
+            alert(error.message || "Could not delete the recipe. Please try again.");
         }
     };
 

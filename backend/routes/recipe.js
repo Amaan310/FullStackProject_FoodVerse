@@ -16,7 +16,7 @@ route.get('/getrecipes', getRecipes);
 route.get('/getrecipe/:id', getRecipe);
 route.post('/createrecipe', upload.single('coverImage'), verifyToken, createRecipe);
 route.put('/updaterecipe/:id', updateUpload.single('coverImage'), editRecipe);
-route.delete('/deleterecipe/:id', deleteRecipe);
+route.delete('/deleterecipe/:id', verifyToken, deleteRecipe);
 route.get('/categories', getUniqueCategories);
 
 // --- User & Auth Routes ---

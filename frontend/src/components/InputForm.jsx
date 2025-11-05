@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import api from '../utils/api';
 
@@ -20,15 +21,22 @@ export default function InputForm({ onLoginSuccess }) {
         try {
             const response = await api.post(`/api/users/${endpoint}`, payload);
             
-            localStorage.setItem("token", response.data.token);
-            localStorage.setItem("user", JSON.stringify(response.data.user));
+            const token = response.data.token;
             
-            // This tells the new useFavorites hook to refetch the user's favorites
-            window.dispatchEvent(new CustomEvent('auth-change'));
+            const userObject = response.data.user || response.data;
+            
+            const { token: removedToken, ...userToStore } = userObject;
 
-            onLoginSuccess();
+            // 4. Save the items correctly
+            localStorage.setItem("token", token);
+            localStorage.setItem("user", JSON.stringify(userToStore));
             
+            // --- END OF FIX ---
+
+            window.dispatchEvent(new CustomEvent('auth-change'));
+            onLoginSuccess();
             window.location.reload(); 
+
         } catch (err) {
             setError(err.response?.data?.message || "An error occurred. Please try again.");
         } finally {
@@ -38,7 +46,6 @@ export default function InputForm({ onLoginSuccess }) {
 
     return (
         <div className="auth-container">
-            {/* The rest of your JSX remains unchanged */}
             <div className="auth-header">
                 <h1 className="auth-app-title">Food Recipes</h1>
                 <h2 className="auth-title">{isSignUp ? "Create Account" : "Welcome Back"}</h2>

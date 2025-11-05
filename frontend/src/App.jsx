@@ -47,7 +47,12 @@ const getAllRecipes = async ({ request }) => {
 
 const getMyRecipes = async () => {
     try {
-        const user = JSON.parse(localStorage.getItem("user"));
+        const userDataString = localStorage.getItem("user");
+        if (!userDataString || userDataString === 'undefined') {
+            return []; 
+        }
+
+        const user = JSON.parse(userDataString);
         if (!user || !user._id) {
             return []; 
         }
@@ -141,15 +146,30 @@ function RootLayout() {
     }, []);
 
     useEffect(() => {
-        const userData = localStorage.getItem('user');
-        if (userData) {
-            setUser(JSON.parse(userData));
+        const userDataString = localStorage.getItem('user');
+        // Check if the data exists and is NOT the string "undefined"
+        if (userDataString && userDataString !== 'undefined') {
+            try {
+                setUser(JSON.parse(userDataString));
+            } catch (error) {
+                console.error("Failed to parse user data from localStorage:", error);
+                // Clear corrupted data
+                localStorage.removeItem('user');
+            }
         }
     }, []);
 
     const handleLoginSuccess = () => {
-        const userData = JSON.parse(localStorage.getItem('user'));
-        setUser(userData);
+        const userDataString = localStorage.getItem('user');
+        if (userDataString && userDataString !== 'undefined') {
+            try {
+                const userData = JSON.parse(userDataString);
+                setUser(userData);
+            } catch (error) {
+                console.error("Failed to parse user data after login:", error);
+                setUser(null);
+            }
+        }
         setModalOpen(false);
     };
 
