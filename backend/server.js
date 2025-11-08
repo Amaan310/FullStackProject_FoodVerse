@@ -6,27 +6,32 @@ const dbConnect = require('./config/dbcon');
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Connect to MongoDB
+// ✅ Connect to MongoDB
 dbConnect();
 
-// Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://foodverse07.netlify.app'],
+  origin: [
+    'http://localhost:5173',        // Vite dev
+    'http://127.0.0.1:5173',        // sometimes used
+    'https://foodverse07.netlify.app' // live frontend (if used)
+  ],
   credentials: true
 }));
+
+// Middleware
 app.use(express.json());
 app.use(express.static('public'));
 
-// Routes
+// ✅ API Routes
 const apiRoutes = require('./routes/recipe');
 app.use('/api', apiRoutes);
 
-// Default route
+// ✅ Default route
 app.get('/', (req, res) => {
   res.send('✅ FoodVerse Backend Running Successfully!');
 });
 
-// Start server
+// ✅ Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });

@@ -16,10 +16,17 @@ route.get('/users/getrecipes', getRecipes);
 route.get('/users/getrecipe/:id', getRecipe);
 route.post('/users/createrecipe', upload.single('coverImage'), verifyToken, createRecipe);
 route.put('/users/updaterecipe/:id', updateUpload.single('coverImage'), verifyToken, editRecipe);
+
 route.delete('/users/deleterecipe/:id', verifyToken, deleteRecipe);
+route.delete('/deleterecipe/:id', verifyToken, deleteRecipe); 
+
 route.get('/users/categories', getUniqueCategories);
 
 // --- User Routes ---
+route.post('/users/signup', userSignup);
+route.post('/users/login', userLogin);
+route.get('/users/profile/:id', verifyToken, userProfile);
+
 route.post('/users/usersignup', userSignup);
 route.post('/users/userlogin', userLogin);
 route.get('/users/userprofile/:id', verifyToken, userProfile);

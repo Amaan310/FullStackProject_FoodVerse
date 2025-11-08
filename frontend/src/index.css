@@ -1,2 +1,59 @@
 
 @import "tailwindcss";
+
+/* 🌿 Soft pulse for floating Add (+) button */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+  }
+}
+
+.pulse-btn {
+  animation: pulse 2.5s infinite ease-in-out;
+}
+
+/* 🍳 Fancy bounce hover for Add Yours Now button */
+.add-now-btn {
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.add-now-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.25);
+}
+
+/* 🌀 Wave ripple animation on hover */
+.add-now-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.5s ease, height 0.5s ease;
+}
+
+.add-now-btn:hover::after {
+  width: 250%;
+  height: 250%;
+}
+
+/* 🥄 Whisk/spoon rotation */
+.spin-icon {
+  display: inline-block;
+  transition: transform 0.8s ease;
+}
+
+.add-now-btn:hover .spin-icon {
+  transform: rotate(360deg);
+}

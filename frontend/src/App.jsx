@@ -4,7 +4,7 @@ import { Outlet, createBrowserRouter, RouterProvider, useNavigate, useLocation, 
 import { Toaster } from 'react-hot-toast';
 import api from './utils/api';
 
-import MainNavigation from './components/mainNavigations';
+import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Model from './components/Model';
 import InputForm from './components/InputForm';
@@ -19,6 +19,8 @@ import RecipeDetails from './pages/RecipeDetails';
 import AboutPage from './pages/AboutPage';
 import RecipesPage from './pages/RecipesPage';
 import CategoriesPage from './pages/CategoriesPage';
+import TermsOfService from "./pages/TermsOfService";
+
 
 const BASE_API_URL = import.meta.env.VITE_API_URL;
 
@@ -189,7 +191,7 @@ function RootLayout() {
     return (
         <>
             <Toaster position="top-center" reverseOrder={false} />
-            <MainNavigation user={user} setModalOpen={setModalOpen} handleLogout={handleLogout} />
+            <Navbar />
             <main>
                 <Outlet /> 
             </main>
@@ -231,6 +233,7 @@ export default function App() {
                 { path: "/recipe/:id", element: <RecipeDetails />, loader: getRecipe },
                 { path: "/about", element: <AboutPage /> }, 
                 { path: "/categories", element: <CategoriesPage />, loader: getCategories },
+                { path: "/terms", element: <TermsOfService /> },
             ]
         }
     ]);

@@ -1,0 +1,96 @@
+/* 🧩 LINKEDIN — Hover + Auto Pulse on Mobile */
+footer a[aria-label="LinkedIn"] {
+  transition: color 0.3s ease, transform 0.3s ease, text-shadow 0.3s ease;
+  position: relative;
+  display: inline-flex;
+}
+
+footer a[aria-label="LinkedIn"]:hover {
+  color: #0077b5 !important;
+  transform: scale(1.15);
+  text-shadow: 0 0 8px rgba(0, 119, 181, 0.6);
+  animation: linkedinPulse 1.8s ease-in-out infinite;
+}
+
+/* 👇 On mobile, auto-run the pulse (no hover required) */
+@media (hover: none) and (pointer: coarse) {
+  footer a[aria-label="LinkedIn"] {
+    color: #0077b5 !important;
+    animation: linkedinPulse 2.5s ease-in-out infinite;
+  }
+}
+
+@keyframes linkedinPulse {
+  0% {
+    text-shadow: 0 0 5px rgba(0, 119, 181, 0.3), 0 0 10px rgba(0, 119, 181, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 12px rgba(0, 119, 181, 0.7), 0 0 20px rgba(0, 119, 181, 0.5);
+  }
+  100% {
+    text-shadow: 0 0 5px rgba(0, 119, 181, 0.3), 0 0 10px rgba(0, 119, 181, 0.3);
+  }
+}
+
+/* 🌈 INSTAGRAM — Gradient Hover + Auto Loop on Mobile */
+footer a[aria-label="Instagram"] {
+  position: relative;
+  display: inline-flex;
+  transition: transform 0.3s ease;
+}
+
+footer a[aria-label="Instagram"]:hover {
+  transform: scale(1.15);
+}
+
+/* Default */
+footer a[aria-label="Instagram"] svg path {
+  fill: #9ca3af;
+  transition: fill 0.3s ease;
+}
+
+/* Hover desktop */
+footer a[aria-label="Instagram"]:hover svg path {
+  fill: url(#instaGradient);
+}
+
+/* Gradient animation */
+@keyframes instaGradientMove {
+  0% {
+    stop-color: #f09433;
+  }
+  25% {
+    stop-color: #e6683c;
+  }
+  50% {
+    stop-color: #dc2743;
+  }
+  75% {
+    stop-color: #cc2366;
+  }
+  100% {
+    stop-color: #f09433;
+  }
+}
+
+/* On hover (desktop) */
+footer a[aria-label="Instagram"]:hover svg stop {
+  animation: instaGradientMove 3s linear infinite;
+}
+
+/* 👇 On mobile — auto shimmer effect */
+@media (hover: none) and (pointer: coarse) {
+  footer a[aria-label="Instagram"] svg path {
+    fill: url(#instaGradient);
+  }
+
+  footer a[aria-label="Instagram"] svg stop {
+    animation: instaGradientMove 4s linear infinite;
+  }
+}
+
+/* Smooth transitions for both */
+footer a[aria-label="LinkedIn"],
+footer a[aria-label="Instagram"] {
+  will-change: transform, color, text-shadow;
+}

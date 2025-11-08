@@ -26,13 +26,12 @@ api.interceptors.response.use(
   }
 );
 
-// ✅ Recipe APIs
 export const RecipeAPI = {
   getAll: () => api.get('/api/users/getrecipes'),
   getOne: (id) => api.get(`/api/users/getrecipe/${id}`),
   create: (data) => api.post('/api/users/createrecipe', data),
   update: (id, data) => api.put(`/api/users/updaterecipe/${id}`, data),
-  delete: (id) => api.delete(`/api/users/deleterecipe/${id}`),
+  delete: (id) => api.delete(`/api/users/deleterecipe/${id}`), 
   getCategories: () => api.get('/api/users/categories'),
 };
 
