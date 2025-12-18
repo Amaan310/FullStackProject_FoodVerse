@@ -13,7 +13,8 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
-    'https://foodverse-frontend.vercel.app'
+    'https://foodverse-frontend.vercel.app',
+    'https://foodverse-frontend-8hkga8af8-amaan310s-projects.vercel.app/'
   ],
   credentials: true
 }));
