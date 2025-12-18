@@ -5,8 +5,7 @@ const path = require('path');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-
-        cb(null, path.join(__dirname, '../public/images')); 
+        cb(null, path.join(__dirname, '../public/images'));
     },
     filename: function (req, file, cb) {
         const filename = Date.now() + '-' + path.parse(file.originalname).name + path.parse(file.originalname).ext;
@@ -17,26 +16,29 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const createRecipe = async (req, res) => {
-
     let uploadedFilePath = req.file ? req.file.path : null;
 
     try {
-        const { title, time, instructions } = req.body;
+        // ✅ now also receive youtubeUrl from frontend
+        const { title, time, instructions, youtubeUrl } = req.body;
 
         const category = JSON.parse(req.body.category);
         const ingredients = JSON.parse(req.body.ingredients);
 
-        const coverImage = req.file; 
+        const coverImage = req.file;
 
         if (!title || !category || category.length === 0 || !ingredients || ingredients.length === 0 || !instructions || !time) {
 
             if (uploadedFilePath) {
-                fs.unlinkSync(uploadedFilePath); 
+                fs.unlinkSync(uploadedFilePath);
             }
             return res.status(400).json({ message: "Title, category, ingredients, instructions, and cooking time are required." });
         }
 
-        const parsedTime = typeof time === 'string' && time.includes(' ') ? parseInt(time.split(' ')[0], 10) : parseInt(time, 10);
+        const parsedTime = typeof time === 'string' && time.includes(' ')
+            ? parseInt(time.split(' ')[0], 10)
+            : parseInt(time, 10);
+
         if (isNaN(parsedTime)) {
             if (uploadedFilePath) {
                 fs.unlinkSync(uploadedFilePath);
@@ -44,18 +46,20 @@ const createRecipe = async (req, res) => {
             return res.status(400).json({ message: "Cooking time must be a valid number." });
         }
 
-
         const newRecipe = await Recipe.create({
             title,
-            category, 
-            ingredients, 
+            category,
+            ingredients,
             instructions,
-            time: parsedTime, 
+            time: parsedTime,
             coverImage: coverImage ? coverImage.filename : null,
-            createdBy: req.user.id 
+            createdBy: req.user.id,
+
+            // ✅ store YouTube link (optional)
+            youtubeUrl: youtubeUrl ? youtubeUrl.trim() : ""
         });
 
-        res.status(201).json({ 
+        res.status(201).json({
             success: true,
             data: newRecipe,
             message: "Recipe created successfully",
@@ -63,10 +67,13 @@ const createRecipe = async (req, res) => {
 
     } catch (error) {
         if (uploadedFilePath) {
-            fs.unlinkSync(uploadedFilePath); 
+            fs.unlinkSync(uploadedFilePath);
         }
         console.error("Server Error:", error);
-        res.status(500).json({ message: "Server Error: Could not create recipe. Please check logs.", error: error.message });
+        res.status(500).json({
+            message: "Server Error: Could not create recipe. Please check logs.",
+            error: error.message
+        });
     }
 };
 

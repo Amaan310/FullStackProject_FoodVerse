@@ -21,7 +21,6 @@ import RecipesPage from './pages/RecipesPage';
 import CategoriesPage from './pages/CategoriesPage';
 import TermsOfService from "./pages/TermsOfService";
 
-
 const BASE_API_URL = import.meta.env.VITE_API_URL;
 
 const getAllRecipes = async ({ request }) => {
@@ -210,6 +209,13 @@ function RootLayout() {
             )}
         </>
     );
+}
+
+function LoginRedirect() {
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("open-login-modal", { detail: true }));
+  }, []);
+  return <Navigate to="/" replace />;
 }
 
 export default function App() {

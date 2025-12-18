@@ -6,14 +6,13 @@ const dbConnect = require('./config/dbcon');
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// ✅ Connect to MongoDB
+// Connect to MongoDB
 dbConnect();
 
 app.use(cors({
   origin: [
-    'http://localhost:5173',        // Vite dev
-    'http://127.0.0.1:5173',        // sometimes used
-    'https://foodverse07.netlify.app' // live frontend (if used)
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
   ],
   credentials: true
 }));
@@ -22,16 +21,17 @@ app.use(cors({
 app.use(express.json());
 app.use(express.static('public'));
 
-// ✅ API Routes
+
+// API Routes
 const apiRoutes = require('./routes/recipe');
 app.use('/api', apiRoutes);
 
-// ✅ Default route
+// Default route
 app.get('/', (req, res) => {
-  res.send('✅ FoodVerse Backend Running Successfully!');
+  res.send('FoodVerse Backend Running Successfully!');
 });
 
-// ✅ Start server
+// Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

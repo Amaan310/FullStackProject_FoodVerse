@@ -1,13 +1,27 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function Model({ children, onClose }) {
+
+    // 🔥 Prevent body scroll + clean on unmount
+    useEffect(() => {
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = "auto";
+        };
+    }, []);
+
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <div
+            className="modal-overlay"
+            onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+            }}
+        >
             <dialog
                 open
                 className="modal"
-                // Prevent modal from closing when clicking inside the dialog
-                onClick={(e) => e.stopPropagation()} 
+                onClick={(e) => e.stopPropagation()} // prevents closing on inside click
             >
                 <button
                     onClick={onClose}
@@ -19,6 +33,7 @@ export default function Model({ children, onClose }) {
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                 </button>
+
                 {children}
             </dialog>
         </div>

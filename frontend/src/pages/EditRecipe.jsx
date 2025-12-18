@@ -16,8 +16,18 @@ export default function EditRecipe() {
   const [coverImage, setCoverImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [existingImage, setExistingImage] = useState("");
+  const [youtubeUrl, setYoutubeUrl] = useState(""); // ✅ NEW
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // ✅ helper to normalize YouTube URL
+  const normalizeYoutubeUrl = (url) => {
+    if (!url) return "";
+    const trimmed = url.trim();
+    if (!trimmed) return "";
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    return `https://www.youtube.com/watch?v=${trimmed}`;
+  };
 
   // ✅ Fetch recipe details on mount
   useEffect(() => {
@@ -25,12 +35,16 @@ export default function EditRecipe() {
       try {
         const res = await api.get(`/api/users/getrecipe/${id}`);
         const data = res.data.data;
+
         setTitle(data.title || "");
         setCategory(Array.isArray(data.category) ? data.category.join(", ") : "");
         setIngredients(Array.isArray(data.ingredients) ? data.ingredients.join(", ") : "");
         setInstructions(data.instructions || "");
         setTime(data.time || "");
         setExistingImage(data.coverImage || "");
+
+        // ✅ load youtubeUrl if already present in DB
+        setYoutubeUrl(data.youtubeUrl || "");
       } catch (error) {
         setError("Failed to load recipe data.");
       }
@@ -66,6 +80,9 @@ export default function EditRecipe() {
       formData.append("time", time);
       formData.append("instructions", instructions);
       formData.append("ingredients", ingredients);
+
+      // ✅ always send something (empty string is fine)
+      formData.append("youtubeUrl", normalizeYoutubeUrl(youtubeUrl));
 
       if (coverImage) {
         formData.append("coverImage", coverImage);
@@ -132,6 +149,24 @@ export default function EditRecipe() {
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
             required
           />
+        </div>
+
+        {/* ✅ YouTube Link (optional) */}
+        <div>
+          <label htmlFor="youtubeUrl" className="block text-sm font-medium text-gray-700 mb-2">
+            YouTube Tutorial Link <span className="text-gray-500 text-xs">(optional)</span>
+          </label>
+          <input
+            id="youtubeUrl"
+            type="url"
+            value={youtubeUrl}
+            onChange={(e) => setYoutubeUrl(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+            placeholder="Paste YouTube URL or video ID"
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            If you leave this empty, no YouTube button will appear on the recipe page.
+          </p>
         </div>
 
         {/* Ingredients */}
@@ -224,7 +259,9 @@ export default function EditRecipe() {
 
         {/* Error Message */}
         {error && (
-          <p className="text-sm text-red-600 bg-red-100 p-3 rounded-md shadow-sm">{error}</p>
+          <p className="text-sm text-red-600 bg-red-100 p-3 rounded-md shadow-sm">
+            {error}
+          </p>
         )}
 
         {/* Buttons */}

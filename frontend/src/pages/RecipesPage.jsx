@@ -167,7 +167,9 @@ export default function RecipesPage() {
   const [recipes, setRecipes] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
 
+  // initial load and incremental step
   const INITIAL_LOAD_COUNT = 6;
+  const LOAD_STEP = 6;
   const [visibleCount, setVisibleCount] = useState(INITIAL_LOAD_COUNT);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -189,12 +191,25 @@ export default function RecipesPage() {
         recipesToShow = allLoadedRecipes.filter(
           (item) => String(item.createdBy?._id) === String(user._id)
         );
+      } else {
+        recipesToShow = [];
       }
     } else if (isFavRecipesPage) {
-      recipesToShow = favorites;
+      recipesToShow = favorites || [];
     }
     setRecipes(recipesToShow);
   }, [loaderData, location.pathname, favorites]);
+
+  useEffect(() => {
+    setVisibleCount(INITIAL_LOAD_COUNT);
+  }, [location.pathname]);
+  // Keep visibleCount reasonable when filtered recipes change
+  useEffect(() => {
+    setVisibleCount((prev) => {
+      const maxAllowed = Math.max(INITIAL_LOAD_COUNT, recipes.length);
+      return Math.min(prev, maxAllowed);
+    });
+  }, [recipes.length]);
 
   const handleDelete = async (recipeId) => {
     if (!window.confirm("Are you sure you want to delete this recipe?")) return;
@@ -235,6 +250,11 @@ export default function RecipesPage() {
   const selectedCategory = searchParams.get("category") || "All";
   useEffect(() => setVisibleCount(INITIAL_LOAD_COUNT), [selectedCategory]);
 
+  // Keep visible count reset when search query changes (user expectation)
+  useEffect(() => {
+    setVisibleCount(INITIAL_LOAD_COUNT);
+  }, [searchQuery]);
+
   const handleCategoryChange = (category) => {
     setSearchQuery("");
     category === "All"
@@ -252,6 +272,7 @@ export default function RecipesPage() {
   let emptyMessage = searchQuery
     ? `No recipes found for "${searchQuery}"`
     : "No recipes found.";
+
   if (isMyRecipesPage) {
     pageTitle = "My Created Recipes";
     pageSubtitle =
@@ -269,6 +290,27 @@ export default function RecipesPage() {
     exit: { opacity: 0, transition: { duration: 0.3 } },
   };
 
+  // ---------- Show more / less handlers ----------
+  const showMore = () => {
+    setVisibleCount((prev) =>
+      Math.min(prev + LOAD_STEP, filteredRecipes.length)
+    );
+  };
+
+  const showLess = () => {
+    setVisibleCount(INITIAL_LOAD_COUNT);
+    // scroll to top of list for user context (optional)
+    const root = document.querySelector("#recipes-grid-anchor");
+    if (root) {
+      root.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const canShowMore = filteredRecipes.length > visibleCount;
+  const canShowLess =
+    visibleCount > INITIAL_LOAD_COUNT &&
+    filteredRecipes.length > INITIAL_LOAD_COUNT;
+
   return (
     <div className="min-h-screen bg-gray-50 pt-24 sm:pt-28 pb-10 px-3 sm:px-6 lg:px-8 overflow-x-hidden relative">
       {/* Decorative Background */}
@@ -278,7 +320,10 @@ export default function RecipesPage() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Page Header */}
-        <div className="text-center mb-8 sm:mb-10 px-2">
+        <div
+          className="text-center mb-8 sm:mb-10 px-2"
+          id="recipes-grid-anchor"
+        >
           <h1 className="text-2xl sm:text-4xl font-extrabold text-gray-900 mt-2">
             {pageTitle}
           </h1>
@@ -328,6 +373,29 @@ export default function RecipesPage() {
                   </motion.div>
                 ))}
               </AnimatePresence>
+            </div>
+
+            {/* Show more / Show less (all pages) */}
+            <div className="flex justify-center mt-8">
+              {canShowMore && (
+                <button
+                  onClick={showMore}
+                  className="px-6 py-2 rounded-md bg-white border border-gray-200 hover:shadow-md transition-all duration-200 text-gray-700"
+                  aria-label="Show more recipes"
+                >
+                  Show more
+                </button>
+              )}
+
+              {!canShowMore && canShowLess && (
+                <button
+                  onClick={showLess}
+                  className="px-6 py-2 rounded-md bg-white border border-gray-200 hover:shadow-md transition-all duration-200 text-gray-700"
+                  aria-label="Show less recipes"
+                >
+                  Show less
+                </button>
+              )}
             </div>
 
             {/* Floating Add (+) Button */}

@@ -12,6 +12,7 @@ export default function AddFoodRecipe() {
   const [instructions, setInstructions] = useState('');
   const [coverImage, setCoverImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [youtubeUrl, setYoutubeUrl] = useState(''); // ✅ NEW: optional YouTube link
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -22,6 +23,17 @@ export default function AddFoodRecipe() {
       setCoverImage(file);
       setPreviewImage(URL.createObjectURL(file)); // instant preview
     }
+  };
+
+  // ✅ Basic helper to normalize YouTube URL (optional)
+  const normalizeYoutubeUrl = (url) => {
+    if (!url) return '';
+    const trimmed = url.trim();
+    if (!trimmed) return '';
+    // if user pasted full http/https link, use as-is
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    // otherwise, treat as video id
+    return `https://www.youtube.com/watch?v=${trimmed}`;
   };
 
   // ✅ Form submission
@@ -39,14 +51,25 @@ export default function AddFoodRecipe() {
 
     const formData = new FormData();
 
-    const ingredientsArray = ingredients.split(',').map((item) => item.trim()).filter((item) => item);
-    const categoryArray = category.split(',').map((item) => item.trim()).filter((item) => item);
+    const ingredientsArray = ingredients
+      .split(',')
+      .map((item) => item.trim())
+      .filter((item) => item);
+    const categoryArray = category
+      .split(',')
+      .map((item) => item.trim())
+      .filter((item) => item);
 
     formData.append('ingredients', JSON.stringify(ingredientsArray));
     formData.append('category', JSON.stringify(categoryArray));
     formData.append('title', title);
     formData.append('time', time);
     formData.append('instructions', instructions);
+
+    // ✅ optional YouTube URL
+    if (youtubeUrl.trim()) {
+      formData.append('youtubeUrl', normalizeYoutubeUrl(youtubeUrl));
+    }
 
     if (coverImage) {
       formData.append('coverImage', coverImage);
@@ -71,7 +94,8 @@ export default function AddFoodRecipe() {
       toast.success('Recipe added successfully!');
       setTimeout(() => navigate('/myRecipe'), 1500);
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to add recipe. Please try again.';
+      const errorMessage =
+        err.response?.data?.error || 'Failed to add recipe. Please try again.';
       toast.error(errorMessage);
       setError(errorMessage);
     } finally {
@@ -127,6 +151,24 @@ export default function AddFoodRecipe() {
             placeholder="e.g., 40"
             required
           />
+        </div>
+
+        {/* ✅ YouTube Tutorial Link (optional) */}
+        <div>
+          <label htmlFor="youtubeUrl" className="block text-sm font-medium text-gray-700">
+            YouTube Tutorial Link <span className="text-gray-500 text-xs">(optional)</span>
+          </label>
+          <input
+            id="youtubeUrl"
+            type="url"
+            value={youtubeUrl}
+            onChange={(e) => setYoutubeUrl(e.target.value)}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
+            placeholder="Paste YouTube URL or video ID"
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Example: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+          </p>
         </div>
 
         {/* Ingredients */}

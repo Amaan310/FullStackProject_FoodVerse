@@ -26,6 +26,12 @@ export default function Navbar() {
     }
   }, []);
 
+  useEffect(() => {
+    const openModal = () => setIsOpen(true);
+    window.addEventListener("open-login-modal", openModal);
+    return () => window.removeEventListener("open-login-modal", openModal);
+  }, []);
+
   const updateLoginStatus = () => {
     const token = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
@@ -54,23 +60,21 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ✅ Main Navbar */}
+      {/* NAVBAR */}
       <nav className="fixed inset-x-0 top-0 z-50 bg-red-600/95 backdrop-blur-md shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-14 md:h-16 pt-[env(safe-area-inset-top)]">
-          
-          {/* ✅ Logo */}
+
+          {/* LOGO */}
           <div className="flex items-center space-x-2">
             <NavLink to="/" className="flex items-center">
-              <img
-                src="/images/foodverse_logo.png"
-                alt="FoodVerse Logo"
-                className="h-14 w-auto"
-              />
+              <img src="/images/foodverse_logo.png" alt="FoodVerse Logo" className="h-14 w-auto" />
             </NavLink>
           </div>
 
-          {/* ✅ Desktop Links */}
+          {/* DESKTOP LINKS */}
           <div className="hidden md:flex items-center space-x-8">
+
+            {/* Home */}
             <NavLink
               to="/"
               className={({ isActive }) =>
@@ -82,17 +86,7 @@ export default function Navbar() {
               Home
             </NavLink>
 
-            <NavLink
-              to="/about"
-              className={({ isActive }) =>
-                `hover:text-white transition-colors duration-200 ${
-                  isActive ? "text-white font-semibold" : "text-red-100"
-                }`
-              }
-            >
-              About
-            </NavLink>
-
+            {/* Auth-only pages */}
             {isLogin && (
               <>
                 <NavLink
@@ -105,6 +99,7 @@ export default function Navbar() {
                 >
                   My Recipes
                 </NavLink>
+
                 <NavLink
                   to="/favrecipes"
                   className={({ isActive }) =>
@@ -117,51 +112,57 @@ export default function Navbar() {
                 </NavLink>
               </>
             )}
+
+            {/* About (Now last) */}
+            <NavLink
+              to="/about"
+              className={({ isActive }) =>
+                `hover:text-white transition-colors duration-200 ${
+                  isActive ? "text-white font-semibold" : "text-red-100"
+                }`
+              }
+            >
+              About
+            </NavLink>
           </div>
 
-          {/* ✅ Right Section (Username + Buttons) */}
+          {/* RIGHT SIDE – USERNAME + BUTTONS */}
           <div className="flex items-center space-x-4">
-            {/* 👤 Username (Desktop Only) */}
             {isLogin && user && (
               <span className="hidden md:inline text-white font-medium text-sm md:text-base">
                 Hi, <span className="font-semibold">{user.username}</span>
               </span>
             )}
 
-            {/* 🔘 Login/Logout (Desktop Only) */}
             <button
               onClick={handleAuthClick}
-              className="hidden md:inline bg-white hover:bg-red-100 text-red-600 px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap shadow-sm"
+              className="hidden md:inline bg-white hover:bg-red-100 text-red-600 px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300 shadow-sm"
             >
               {isLogin ? "Logout" : "Login"}
             </button>
 
-            {/* ☰ Hamburger (Mobile Only) */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="block md:hidden text-white focus:outline-none"
-            >
+            {/* Mobile hamburger */}
+            <button onClick={() => setMenuOpen(!menuOpen)} className="block md:hidden text-white">
               {menuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
             </button>
           </div>
         </div>
 
-        {/* ✅ Mobile Menu */}
+        {/* MOBILE MENU */}
         <div
-          className={`md:hidden fixed left-0 right-0 top-14 bg-white/95 backdrop-blur-lg shadow-xl transform transition-all duration-300 ease-in-out rounded-b-2xl border-t border-gray-200 ${
-            menuOpen
-              ? "translate-y-0 opacity-100"
-              : "-translate-y-5 opacity-0 pointer-events-none"
+          className={`md:hidden fixed left-0 right-0 top-14 bg-white/95 backdrop-blur-lg shadow-xl transform transition-all duration-300 rounded-b-2xl border-t border-gray-200 ${
+            menuOpen ? "translate-y-0 opacity-100" : "-translate-y-5 opacity-0 pointer-events-none"
           }`}
         >
           <div className="px-5 pt-5 pb-6 flex flex-col text-gray-800 font-medium space-y-2">
-            {/* 👤 Username */}
+
             {isLogin && user && (
               <div className="text-center mb-3 pb-3 border-b border-gray-300 text-base font-semibold text-red-600">
                 👋 Hi, {user.username}
               </div>
             )}
 
+            {/* Home */}
             <NavLink
               to="/"
               onClick={() => setMenuOpen(false)}
@@ -169,14 +170,8 @@ export default function Navbar() {
             >
               Home
             </NavLink>
-            <NavLink
-              to="/about"
-              onClick={() => setMenuOpen(false)}
-              className="hover:bg-red-100 px-4 py-2 rounded-lg transition-all duration-300"
-            >
-              About
-            </NavLink>
 
+            {/* Auth-only mobile links */}
             {isLogin && (
               <>
                 <NavLink
@@ -186,6 +181,7 @@ export default function Navbar() {
                 >
                   My Recipes
                 </NavLink>
+
                 <NavLink
                   to="/favrecipes"
                   onClick={() => setMenuOpen(false)}
@@ -196,7 +192,16 @@ export default function Navbar() {
               </>
             )}
 
-            {/* ✅ Logout/Login (Mobile Only) */}
+            {/* About (Now last) */}
+            <NavLink
+              to="/about"
+              onClick={() => setMenuOpen(false)}
+              className="hover:bg-red-100 px-4 py-2 rounded-lg transition-all duration-300"
+            >
+              About
+            </NavLink>
+
+            {/* Login/Logout Mobile */}
             <button
               onClick={() => {
                 setMenuOpen(false);
@@ -210,7 +215,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* ✅ Login Modal */}
+      {/* LOGIN MODAL */}
       {isOpen && (
         <Modal onClose={closeLogin}>
           <InputForm setIsOpen={setIsOpen} onLoginSuccess={updateLoginStatus} />
