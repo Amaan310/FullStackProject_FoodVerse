@@ -52,6 +52,10 @@
 
 ---
 
+## Project Demo
+
+- Go to this url 🔗 -> https://drive.google.com/file/d/134j82GLL7TjcFD-PM95xHhADF2aoqbuz/view?usp=sharing
+
 ## Project Structure 📂📁🗂️📑🧱📝
 ```bash
 foodverse 
